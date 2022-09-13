@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:health_scanner/repository/db_helper.dart';
 import 'package:health_scanner/repository/entity/scan_result.dart';
 import 'package:health_scanner/util/constant.dart';
@@ -16,7 +16,6 @@ import 'package:health_scanner/view/settings.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:scan/scan.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class MenuItem {
   FaIcon icon;
@@ -74,81 +73,82 @@ class _ScannerHomeState extends State<ScannerHome> {
   bool scanViewLoad = false;
   bool capturePaused = false;
 
-  // BannerAd? banner;
-  final String iOSBannerId = 'ca-app-pub-3940256099942544/2934735716';
-  final String iOSFullId = 'ca-app-pub-3940256099942544/4411468910';
+  BannerAd? banner;
+  final String iOSBannerId = 'ca-app-pub-9075644019401216/2416483300';
+  final String iOSFullId = 'ca-app-pub-9075644019401216/2224911619';
   final String androidBannerId = 'ca-app-pub-9075644019401216/6391836077';
   final String androidFullId = 'ca-app-pub-9075644019401216/7485425898';
   String description = '';
   int fullScreenAdView = 0;
 
-  // InterstitialAd? interstitialAd;
+  InterstitialAd? interstitialAd;
 
   @override
   void initState() {
     super.initState();
     DatabaseHelper.instance.initialize();
-    // banner = BannerAd(
-    //   size: AdSize.fullBanner,
-    //   adUnitId: Platform.isIOS ? iOSBannerId : androidBannerId,
-    //   listener: const BannerAdListener(),
-    //   request: const AdRequest(),
-    // )..load();
+    banner = BannerAd(
+      size: AdSize.fullBanner,
+      adUnitId: Platform.isIOS ? iOSBannerId : androidBannerId,
+      listener: const BannerAdListener(),
+      request: const AdRequest(),
+    )..load();
   }
 
   @override
   void dispose() {
-    // interstitialAd?.dispose();
+    interstitialAd?.dispose();
     super.dispose();
   }
 
-  // void makeFullScreenAd() {
-  //   InterstitialAd.load(
-  //     adUnitId: Platform.isIOS ? iOSFullId : androidFullId,
-  //     request: const AdRequest(),
-  //     adLoadCallback: InterstitialAdLoadCallback(
-  //       onAdLoaded: (InterstitialAd ad) {
-  //         interstitialAd = ad;
-  //       },
-  //       onAdFailedToLoad: (LoadAdError error) {
-  //         log('InterstitialAd failed to load: $error');
-  //       },
-  //     ),
-  //   );
-  // }
-  //
-  // void showFullScreenAd() {
-  //   interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
-  //     onAdDismissedFullScreenContent: (InterstitialAd ad) {
-  //       ad.dispose();
-  //     },
-  //   );
-  //   interstitialAd?.show();
-  // }
+  void makeFullScreenAd() {
+    InterstitialAd.load(
+      adUnitId: Platform.isIOS ? iOSFullId : androidFullId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          interstitialAd = ad;
+        },
+        onAdFailedToLoad: (LoadAdError error) {
+          log('InterstitialAd failed to load: $error');
+        },
+      ),
+    );
+  }
+
+  void showFullScreenAd() {
+    interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        ad.dispose();
+      },
+    );
+    interstitialAd?.show();
+  }
 
   void onSelect(MenuItem item) {
     switch (item.id) {
       case Screen.inputHealth:
         controller.pause();
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const HealthInput()))
+                MaterialPageRoute(builder: (context) => const HealthInput()))
             .then((value) => controller.resume());
         break;
       case Screen.viewHistory:
         controller.pause();
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const ScanHistory()))
+                MaterialPageRoute(builder: (context) => const ScanHistory()))
             .then((value) => controller.resume());
         break;
       case Screen.settings:
-      // controller.pause();
-      // Navigator.push(context,
-      //         MaterialPageRoute(builder: (context) => const Settings()))
-      //     .then((value) => controller.resume());
+        // controller.pause();
+        // Navigator.push(context,
+        //         MaterialPageRoute(builder: (context) => const Settings()))
+        //     .then((value) => controller.resume());
         break;
       case Screen.goMedicalCheck:
         controller.pause();
-        launchUrl(Uri.parse("https://komef.org"), mode: LaunchMode.externalApplication);
+        launchUrl(Uri.parse("https://komef.org"),
+            mode: LaunchMode.externalApplication);
         break;
     }
   }
@@ -191,9 +191,12 @@ class _ScannerHomeState extends State<ScannerHome> {
                     Center(
                       child: InkWell(
                         onTap: () {
-                          int cholesterol = Hive.box(personalInfoBox).get(HealthKey.cholesterol, defaultValue: -1);
-                          int glucose = Hive.box(personalInfoBox).get(HealthKey.glucose, defaultValue: -1);
-                          int fat = Hive.box(personalInfoBox).get(HealthKey.fat, defaultValue: -1);
+                          int cholesterol = Hive.box(personalInfoBox)
+                              .get(HealthKey.cholesterol, defaultValue: -1);
+                          int glucose = Hive.box(personalInfoBox)
+                              .get(HealthKey.glucose, defaultValue: -1);
+                          int fat = Hive.box(personalInfoBox)
+                              .get(HealthKey.fat, defaultValue: -1);
                           if (cholesterol >= 0 && glucose >= 0 && fat >= 0) {
                             setState(() => scanViewLoad = true);
                           } else {
@@ -219,58 +222,55 @@ class _ScannerHomeState extends State<ScannerHome> {
                     ),
                     scanViewLoad
                         ? ScanView(
-                      controller: controller,
-                      scanAreaScale: 0.8,
-                      scanLineColor: Colors.lime,
-                      onCapture: (data) {
-                        controller.pause();
-                        log('captured data : $data');
-                        setState(() {
-                          capturePaused = true;
-                          capturedData = data;
-                        });
-                        processingData(capturedData);
-                      },
-                    )
+                            controller: controller,
+                            scanAreaScale: 0.8,
+                            scanLineColor: Colors.lime,
+                            onCapture: (data) {
+                              controller.pause();
+                              log('captured data : $data');
+                              setState(() {
+                                capturePaused = true;
+                                capturedData = data;
+                              });
+                              processingData(capturedData);
+                            },
+                          )
                         : const SizedBox.shrink(),
                     scanViewLoad && capturePaused
                         ? Positioned(
-                      bottom: 20,
-                      right: 20,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          setState(() => capturePaused = false);
-                          controller.resume();
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('다시 스캔하기'),
-                        style: ButtonStyle(
-                          foregroundColor:
-                          MaterialStateProperty.all<Color>(
-                              Colors.black),
-                          backgroundColor:
-                          MaterialStateProperty.all<Color>(
-                              Colors.lime),
-                        ),
-                      ),
-                    )
+                            bottom: 20,
+                            right: 20,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                setState(() => capturePaused = false);
+                                controller.resume();
+                              },
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('다시 스캔하기'),
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.lime),
+                              ),
+                            ),
+                          )
                         : const SizedBox.shrink(),
                   ],
                 ),
               ),
               Container(
                 height: 70,
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width,
+                width: MediaQuery.of(context).size.width,
                 alignment: Alignment.center,
                 color: Colors.lime,
                 child: Text(
                   scanViewLoad
                       ? capturedData.isEmpty
-                      ? '바코드를 인식해 주세요.'
-                      : capturedData
+                          ? '바코드를 인식해 주세요.'
+                          : capturedData
                       : '스캔 시작하기를 눌러주세요',
                   style: const TextStyle(
                       color: Colors.black,
@@ -293,12 +293,12 @@ class _ScannerHomeState extends State<ScannerHome> {
                   ),
                 ),
               ),
-              // SizedBox(
-              //   height: 60,
-              //   child: AdWidget(
-              //     ad: banner!,
-              //   ),
-              // )
+              SizedBox(
+                height: 60,
+                child: AdWidget(
+                  ad: banner!,
+                ),
+              )
             ],
           ),
         ),
@@ -322,22 +322,22 @@ class _ScannerHomeState extends State<ScannerHome> {
 
   void processingData(String codeData) {
     if (fullScreenAdView == 0) {
-      // makeFullScreenAd();
+      makeFullScreenAd();
     }
     setState(() => fullScreenAdView += 1);
     if (fullScreenAdView == 10) {
       setState(() => fullScreenAdView = 0);
-      // showFullScreenAd();
+      showFullScreenAd();
     }
     if (codeData.length >= 13) {
       String data = codeData.substring(codeData.length - 13).substring(0, 12);
       log('Captured : $data');
       int userCholesterol =
-      Hive.box(personalInfoBox).get(HealthKey.cholesterol, defaultValue: 0);
+          Hive.box(personalInfoBox).get(HealthKey.cholesterol, defaultValue: 0);
       int userGlucose =
-      Hive.box(personalInfoBox).get(HealthKey.glucose, defaultValue: 0);
+          Hive.box(personalInfoBox).get(HealthKey.glucose, defaultValue: 0);
       int userFat =
-      Hive.box(personalInfoBox).get(HealthKey.fat, defaultValue: 0);
+          Hive.box(personalInfoBox).get(HealthKey.fat, defaultValue: 0);
       description = '건강 스캐너 결과\n\n';
       DatabaseHelper.instance.search(data).then((value) {
         log('search result: $value');
@@ -347,13 +347,13 @@ class _ScannerHomeState extends State<ScannerHome> {
           if (userCholesterol > 0) {
             if (userCholesterol > 250) {
               description +=
-              cholesterolString[Cholesterol.healthLevel3]![cholesScan]!;
+                  cholesterolString[Cholesterol.healthLevel3]![cholesScan]!;
             } else if (userCholesterol > 200 && userCholesterol <= 250) {
               description +=
-              cholesterolString[Cholesterol.healthLevel2]![cholesScan]!;
+                  cholesterolString[Cholesterol.healthLevel2]![cholesScan]!;
             } else if (userCholesterol > 150 && userCholesterol <= 200) {
               description +=
-              cholesterolString[Cholesterol.healthLevel1]![cholesScan]!;
+                  cholesterolString[Cholesterol.healthLevel1]![cholesScan]!;
             }
             description += '\n';
           }

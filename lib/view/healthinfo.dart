@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:health_scanner/util/constant.dart';
 import 'package:health_scanner/view/common/bottom_button.dart';
 import 'package:health_scanner/view/common/style_provider.dart';
@@ -25,19 +24,19 @@ class _HealthInputState extends State<HealthInput> {
   String glucose = '';
   String fat = '';
 
-  // BannerAd? banner;
-  final String iOSTestId = 'ca-app-pub-3940256099942544/2934735716';
-  final String androidTestId = 'ca-app-pub-9075644019401216/6391836077';
+  BannerAd? banner;
+  final String iOSBannerId = 'ca-app-pub-9075644019401216/2416483300';
+  final String androidBannerId = 'ca-app-pub-9075644019401216/6391836077';
 
   @override
   void initState() {
     super.initState();
-    // banner = BannerAd(
-    //   size: AdSize.fullBanner,
-    //   adUnitId: Platform.isIOS ? iOSTestId : androidTestId,
-    //   listener: const BannerAdListener(),
-    //   request: const AdRequest(),
-    // )..load();
+    banner = BannerAd(
+      size: AdSize.fullBanner,
+      adUnitId: Platform.isIOS ? iOSBannerId : androidBannerId,
+      listener: const BannerAdListener(),
+      request: const AdRequest(),
+    )..load();
   }
 
   @override
@@ -167,12 +166,12 @@ class _HealthInputState extends State<HealthInput> {
                   ),
                 ),
               ),
-              // SizedBox(
-              //   height: 60,
-              //   child: AdWidget(
-              //     ad: banner!,
-              //   ),
-              // )
+              SizedBox(
+                height: 60,
+                child: AdWidget(
+                  ad: banner!,
+                ),
+              )
             ],
           ),
         ),

@@ -24,6 +24,7 @@ dependencies:
   hive_generator: ^1.1.3
   build_runner: ^2.1.11
   url_launcher: ^6.1.5
+  google_mobile_ads: ^2.0.1
 
 dev_dependencies:
   flutter_test:
